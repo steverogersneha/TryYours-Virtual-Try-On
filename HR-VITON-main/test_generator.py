@@ -85,8 +85,8 @@ def load_checkpoint_G(model, checkpoint_path,opt):
     new_state_dict = OrderedDict([(k.replace('ace', 'alias').replace('.Spade', ''), v) for (k, v) in state_dict.items()])
     new_state_dict._metadata = OrderedDict([(k.replace('ace', 'alias').replace('.Spade', ''), v) for (k, v) in state_dict._metadata.items()])
     model.load_state_dict(new_state_dict, strict=True)
-    if opt.cuda :
-        model.cuda()
+    #if opt.cuda :
+    #    model.cuda()
 
 
 
@@ -133,14 +133,15 @@ def test(opt, test_loader, tocg, generator):
             else :
                 #pose_map = inputs['pose']
                 pre_clothes_mask = inputs['cloth_mask'][opt.datasetting]
-                label = inputs['parse']
+                #label = inputs['parse']
                 parse_agnostic = inputs['parse_agnostic']
                 agnostic = inputs['agnostic']
                 clothes = inputs['cloth'][opt.datasetting] # target cloth
                 densepose = inputs['densepose']
                 #im = inputs['image']
-                input_label, input_parse_agnostic = label, parse_agnostic
-                pre_clothes_mask = torch.FloatTensor((pre_clothes_mask.detach().cpu().numpy() > 0.5).astype(np.float))
+                #input_label, input_parse_agnostic = label, parse_agnostic
+                input_parse_agnostic = parse_agnostic
+                pre_clothes_mask = torch.FloatTensor((pre_clothes_mask.detach().cpu().numpy() > 0.5).astype(float))
 
 
 
@@ -166,7 +167,8 @@ def test(opt, test_loader, tocg, generator):
             if opt.cuda :
                 warped_cm_onehot = torch.FloatTensor((warped_clothmask_paired.detach().cpu().numpy() > 0.5).astype(np.float)).cuda()
             else :
-                warped_cm_onehot = torch.FloatTensor((warped_clothmask_paired.detach().cpu().numpy() > 0.5).astype(np.float))
+                # use float instead of np.float since numpy has upgraded.
+                warped_cm_onehot = torch.FloatTensor((warped_clothmask_paired.detach().cpu().numpy() > 0.5).astype(float))
 
             if opt.clothmask_composition != 'no_composition':
                 if opt.clothmask_composition == 'detach':
@@ -247,7 +249,10 @@ def main():
     #print(opt)
     print("Start to test! - HR-VITON")
     os.environ["CUDA_VISIBLE_DEVICES"] = opt.gpu_ids
-    
+
+    #This option forcefully disables CUDA. Comment this line to enable CUDA.
+    opt.cuda = False
+
     # create test dataset & loader
     test_dataset = CPDatasetTest(opt)
     test_loader = CPDataLoader(opt, test_dataset)

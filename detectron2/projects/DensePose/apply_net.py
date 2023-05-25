@@ -117,6 +117,8 @@ class InferenceAction(Action):
         if opts:
             cfg.merge_from_list(opts)
         cfg.MODEL.WEIGHTS = model_fpath
+        # Comment the line below if you intend to run it with GPU
+        cfg.MODEL.DEVICE = 'cpu'
         cfg.freeze()
         return cfg
 

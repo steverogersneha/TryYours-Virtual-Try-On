@@ -421,8 +421,8 @@ def load_checkpoint(model, checkpoint_path,opt):
         print('no checkpoint')
         raise
     log = model.load_state_dict(torch.load(checkpoint_path), strict=False)
-    if opt.cuda :
-        model.cuda()
+    #if opt.cuda :
+    #    model.cuda()
 
 
 def weights_init(m):
